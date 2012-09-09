@@ -139,16 +139,16 @@ sub FETCH
     my ($self, $key) = @_;
     my @nodes = $self->__fields($key);
 
-	# If nothing was found, do a deep search in the child nodes for a name match
-	if (!@nodes)
-	{
-		foreach my $child (@{ $self->{__child_nodes} })
-		{
-			push @nodes,
-				grep { $_->{name} =~ /^(?:.*\.)?$key$/i }
-					(@{ $child->{field} || [] }, @{ $child->{proto} || [] });
-		}
-	}
+    # If nothing was found, do a deep search in the child nodes for a name match
+    if (!@nodes)
+    {
+        foreach my $child (@{ $self->{__child_nodes} })
+        {
+            push @nodes,
+              grep { $_->{name} =~ /^(?:.*\.)?$key$/i }
+              (@{ $child->{field} || [] }, @{ $child->{proto} || [] });
+        }
+    }
 
     # If all the matching fields are leaves, append all their values and
     # return them as a constructed field
@@ -158,7 +158,7 @@ sub FETCH
             map { (defined $_->{show}) ? $_->{show} : $_->{showname} } @nodes);
         return Net::Tshark::Field->new({ show => $show });
     }
-	
+
     # Otherwise, return the first matching node
     return Net::Tshark::Field->new($nodes[0]);
 }

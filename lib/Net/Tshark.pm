@@ -20,18 +20,18 @@ sub new
 
     # Try to find tshark
     my $tshark_path = which('tshark');
-	if (!defined $tshark_path)
-	{
-		if ($^O eq 'MSWin32' && -x "C:\\Program Files\\Wireshark\\tshark.exe")
-		{
-		    $tshark_path = "C:\\Program Files\\Wireshark\\tshark.exe";
-		}
-		else
-		{
-			warn 'Could not find TShark installed. Is it in your PATH?';
-			return;
-		}
-	}
+    if (!defined $tshark_path)
+    {
+        if ($^O eq 'MSWin32' && -x "C:\\Program Files\\Wireshark\\tshark.exe")
+        {
+            $tshark_path = "C:\\Program Files\\Wireshark\\tshark.exe";
+        }
+        else
+        {
+            warn 'Could not find TShark installed. Is it in your PATH?';
+            return;
+        }
+    }
 
     my $self = {
         in          => q(),
@@ -52,19 +52,19 @@ sub DESTROY
 sub start
 {
     my ($self, %args) = @_;
-    my ($interface, $capture_filter, $display_filter, $duration, $promiscuous) =
-      @args{qw(interface capture_filter display_filter duration promiscuous)};
+    my ($interface, $capture_filter, $display_filter, $duration, $promiscuous)
+      = @args{qw(interface capture_filter display_filter duration promiscuous)};
 
-	# Construct the command to execute tshark
+    # Construct the command to execute tshark
     my @command = ($self->{tshark_path});
-    push @command, '-a duration:', int($duration) if ($duration);
-	push @command, '-f', $capture_filter if ($capture_filter);
-    push @command, '-i', $interface if (defined $interface);
-	push @command, '-l'; # Flush the standard output after each packet
-	push @command, '-p' if (defined $promiscuous && !$promiscuous);
-	push @command, '-R', $display_filter if ($display_filter);
-	push @command, '-T', 'pdml'; # Output XML
-	
+    push @command, '-a duration:', int($duration)  if ($duration);
+    push @command, '-f',           $capture_filter if ($capture_filter);
+    push @command, '-i',           $interface      if (defined $interface);
+    push @command, '-l';    # Flush the standard output after each packet
+    push @command, '-p' if (defined $promiscuous && !$promiscuous);
+    push @command, '-R', $display_filter if ($display_filter);
+    push @command, '-T', 'pdml';    # Output XML
+
     # Start a tshark process and pipe its input, output, and error streams
     # so that we can read and write to it while it runs
     $self->{tshark} = IPC::Run::start \@command, \$self->{in}, \$self->{out},
@@ -141,7 +141,7 @@ sub __get_decoded_packet
 
             # Remove the packet from the buffer and process it
             $self->{out} =~ s/\Q$packet\E//;
-			
+
             return $packet;
         }
 
