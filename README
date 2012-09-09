@@ -1,4 +1,4 @@
-Net-Tshark version 0.01
+Net-Tshark version 0.02
 =======================
 
 This module provides an interface for the tshark utility used for capturing packets from a network interface.

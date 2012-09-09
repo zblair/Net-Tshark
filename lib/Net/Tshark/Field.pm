@@ -2,7 +2,7 @@ package Net::Tshark::Field;
 use strict;
 use warnings;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use List::MoreUtils qw(any all uniq after);
 use List::Util qw(reduce);
@@ -246,14 +246,22 @@ Net::Tshark::Field - Represents a field in a packet returned by Net::Tshark.
   ...
 
   # Get any packets captured
-  my @packets = $sniffer->get_packets;
+  my @packets = $tshark->get_packets;
   
   # Extract packet information by accessing each packet like a nested hash
-  my $src_ip = $packets[0]->{ip}->{src};
-  my $dst_ip = $packets[0]->{ip}->{dst};
-
-  # Find all of the HTTP packets captured
-  my @http_packets = grep { defined $_->{http} } @packets;
+  foreach my $packet (@packets) {
+    if ($packet->{http}->{request})
+    {
+      my $host = $packet->{http}->{host};
+      my $method = $packet->{http}->{'http.request.method'};
+      print "\t - HTTP $method request to $host\n";
+    }
+    else
+    {
+      my $code = $packet->{http}->{'http.response.code'};
+      print "\t - HTTP response: $code\n";
+    }
+  }
 
 =head1 DESCRIPTION
 
@@ -263,54 +271,33 @@ Represents a field within a packet returned by Net::Tshark->get_packet.
 
 =over 4
 
-=item $tshark->start(%options)
+=item $packet->fields
 
-  Parameters:
-  interface      - network interface to use (1, 2, etc)
-  capture_filter - capture filter, as used by tshark
-  display_filter - display filter, as used by tshark
-  duration       - maximum number of seconds to capture packets for
+Returns an array of the child fields of this field.
 
-=item $tshark->stop
+=item $packet->show
 
-Terminates the tshark process, stopping any further packet capture. You may still execute C<get_packets> after the tshark process has terminated.
+=item $packet->showname
 
-=item $tshark->is_running
+=item $packet->name
 
-Returns a true value if the tshark process is running, or a false value if
-the tshark process is not running.
+=item $packet->size
 
-=item $tshark->get_packet
+=item $packet->value
 
-Retrieves the next available captured packet, or returns undef if no packets are
-available. Packets are C<Net::Tshark::Packet> objects, which implement much of the same interface as native hashes. Therefore, you can dereference C<Net::Tshark::Packet> objects much as you would nested hashes. In fact, you can even cast a C<Net::Tshark::Packet> object to a real hash:
+=item $packet->hash
 
-  # Get a packet and access its fields directly
-  my $packet = $tshark->get_packet;
-  print "The dst IP is $packet->{ip}->{dst}\n";
-
-  # Deep-copy the packet object and store its fields in a native hash
-  my %packet_hash = %{$packet->hash};
-  print "The src IP is $packet_hash{ip}->{src}\n";
-
-=item $tshark->get_packets
-
-Retrieves all available captured packets, or returns an empty list if no packets
-are available.
-
-  # Get a list of the source ips of all captured IP packets
-  my @packets = $tshark->get_packets;
-  my @src_ips = map { $_->{ip}->{src} } grep { defined $_->{ip} } @packets;
- 
-=back
+Returns a hash containing the contents of this field.
 
 =head1 SEE ALSO
 
-Net::Pcap - Interface to pcap(3) LBL packet capture library
+Net::Tshark - Interface for the tshark network capture utility
+
+The PDML Specification - http://www.nbee.org/doku.php?id=netpdl:pdml_specification
 
 =head1 AUTHOR
 
-Zachary Blair, E<lt>zack_blair@hotmail.comE<gt>
+Zachary Blair, E<lt>zblair@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
@@ -319,7 +306,6 @@ Copyright (C) 2012 by Zachary Blair
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.8 or,
 at your option, any later version of Perl 5 you may have available.
-
 
 =cut
 

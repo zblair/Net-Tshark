@@ -3,7 +3,7 @@ package Net::Tshark;
 use strict;
 use warnings;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use IPC::Run;
 use File::Which qw(which);
@@ -226,6 +226,7 @@ Returns a newly created C<Net::Tshark> object.
   capture_filter - capture filter, as used by tshark
   display_filter - display filter, as used by tshark
   duration       - maximum number of seconds to capture packets for
+  promiscuous    - set to 0 to disable promiscuous mode (necessary for some WiFi adapters)
 
 =item $tshark->stop
 
@@ -263,11 +264,12 @@ are available.
 =head1 SEE ALSO
 
 Net::Pcap - Interface to pcap(3) LBL packet capture library
+
 Net::Sharktools - Use Wireshark's packet inspection capabilities in Perl
 
 =head1 AUTHOR
 
-Zachary Blair, E<lt>zack_blair@hotmail.comE<gt>
+Zachary Blair, E<lt>zblair@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
